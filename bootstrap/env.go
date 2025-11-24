@@ -7,15 +7,22 @@ import (
 )
 
 type Env struct {
-	AppEnv                 string `mapstructure:"APP_ENV"`
-	ServerAddress          string `mapstructure:"SERVER_ADDRESS"`
-	ContextTimeout         int    `mapstructure:"CONTEXT_TIMEOUT"`
-	DBHost                 string `mapstructure:"DB_HOST"`
-	LogLevel               int    `mapstructure:"LOG_LEVEL"`
-	DBPort                 string `mapstructure:"DB_PORT"`
-	DBUser                 string `mapstructure:"DB_USER"`
-	DBPass                 string `mapstructure:"DB_PASS"`
-	DBName                 string `mapstructure:"DB_NAME"`
+	AppEnv         string `mapstructure:"APP_ENV"`
+	ServerAddress  string `mapstructure:"SERVER_ADDRESS"`
+	ContextTimeout int    `mapstructure:"CONTEXT_TIMEOUT"`
+	DBHost         string `mapstructure:"DB_HOST"`
+	LogLevel       int    `mapstructure:"LOG_LEVEL"`
+	DBPort         string `mapstructure:"DB_PORT"`
+	DBUser         string `mapstructure:"DB_USER"`
+	DBPass         string `mapstructure:"DB_PASS"`
+	DBName         string `mapstructure:"DB_NAME"`
+	// PostgreSQL Configuration
+	PostgresHost     string `mapstructure:"POSTGRES_HOST"`
+	PostgresPort     string `mapstructure:"POSTGRES_PORT"`
+	PostgresDB       string `mapstructure:"POSTGRES_DB"`
+	PostgresUser     string `mapstructure:"POSTGRES_USER"`
+	PostgresPassword string `mapstructure:"POSTGRES_PASSWORD"`
+	// JWT Configuration
 	AccessTokenExpiryHour  int    `mapstructure:"ACCESS_TOKEN_EXPIRY_HOUR"`
 	RefreshTokenExpiryHour int    `mapstructure:"REFRESH_TOKEN_EXPIRY_HOUR"`
 	AccessTokenSecret      string `mapstructure:"ACCESS_TOKEN_SECRET"`

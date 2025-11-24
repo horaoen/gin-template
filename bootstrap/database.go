@@ -14,7 +14,7 @@ import (
 
 func NewPostgres(env *Env) *gorm.DB {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai",
-		env.DBHost, env.DBUser, env.DBPass, env.DBName, env.DBPort)
+		env.PostgresHost, env.PostgresUser, env.PostgresPassword, env.PostgresDB, env.PostgresPort)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		zlog.Fatal().AnErr("postgres connect fail", err)

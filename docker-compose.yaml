@@ -27,5 +27,19 @@ services:
     volumes:
       - dbdata:/data/db
 
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=$POSTGRES_DB
+      - POSTGRES_USER=$POSTGRES_USER
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+    ports:
+      - "$POSTGRES_PORT:$POSTGRES_PORT"
+    volumes:
+      - postgresdata:/var/lib/postgresql/data
+
 volumes:
   dbdata:
+  postgresdata:
