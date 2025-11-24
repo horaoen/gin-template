@@ -11,6 +11,7 @@ type Env struct {
 	ServerAddress          string `mapstructure:"SERVER_ADDRESS"`
 	ContextTimeout         int    `mapstructure:"CONTEXT_TIMEOUT"`
 	DBHost                 string `mapstructure:"DB_HOST"`
+	LogLevel               int    `mapstructure:"LOG_LEVEL"`
 	DBPort                 string `mapstructure:"DB_PORT"`
 	DBUser                 string `mapstructure:"DB_USER"`
 	DBPass                 string `mapstructure:"DB_PASS"`
@@ -37,6 +38,7 @@ func NewEnv() *Env {
 
 	if env.AppEnv == "development" {
 		log.Println("The App is running in development env")
+		log.Println(env)
 	}
 
 	return &env

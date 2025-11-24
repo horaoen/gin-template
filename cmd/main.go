@@ -3,9 +3,10 @@ package main
 import (
 	"time"
 
+	"github.com/gin-gonic/gin"
 	route "github.com/horaoen/go-backend-clean-architecture/api/route"
 	"github.com/horaoen/go-backend-clean-architecture/bootstrap"
-	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 )
 
 func main() {
@@ -23,5 +24,8 @@ func main() {
 
 	route.Setup(env, timeout, db, gin)
 
-	gin.Run(env.ServerAddress)
+	err := gin.Run(env.ServerAddress)
+	if err != nil {
+		log.Err(err).Msg("应用启动失败")
+	}
 }

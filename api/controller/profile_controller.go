@@ -3,8 +3,8 @@ package controller
 import (
 	"net/http"
 
-	"github.com/horaoen/go-backend-clean-architecture/domain"
 	"github.com/gin-gonic/gin"
+	"github.com/horaoen/go-backend-clean-architecture/domain"
 )
 
 type ProfileController struct {
