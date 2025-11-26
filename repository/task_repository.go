@@ -2,52 +2,42 @@ package repository
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/horaoen/go-backend-clean-architecture/domain"
-	"github.com/horaoen/go-backend-clean-architecture/mongo"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"gorm.io/gorm"
 )
 
 type taskRepository struct {
-	database   mongo.Database
-	collection string
+	db *gorm.DB
 }
 
-func NewTaskRepository(db mongo.Database, collection string) domain.TaskRepository {
+func NewTaskRepository(db *gorm.DB) domain.TaskRepository {
 	return &taskRepository{
-		database:   db,
-		collection: collection,
+		db: db,
 	}
 }
 
 func (tr *taskRepository) Create(c context.Context, task *domain.Task) error {
-	collection := tr.database.Collection(tr.collection)
-
-	_, err := collection.InsertOne(c, task)
-
-	return err
+	return tr.db.WithContext(c).Create(task).Error
 }
 
 func (tr *taskRepository) FetchByUserID(c context.Context, userID string) ([]domain.Task, error) {
-	collection := tr.database.Collection(tr.collection)
-
 	var tasks []domain.Task
 
-	idHex, err := primitive.ObjectIDFromHex(userID)
+	uid, err := strconv.ParseUint(userID, 10, 64)
 	if err != nil {
 		return tasks, err
 	}
 
-	cursor, err := collection.Find(c, bson.M{"userID": idHex})
+	err = tr.db.WithContext(c).Where("user_id = ?", uid).Find(&tasks).Error
 	if err != nil {
 		return nil, err
 	}
 
-	err = cursor.All(c, &tasks)
 	if tasks == nil {
-		return []domain.Task{}, err
+		return []domain.Task{}, nil
 	}
 
-	return tasks, err
+	return tasks, nil
 }

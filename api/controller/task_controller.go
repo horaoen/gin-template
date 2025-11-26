@@ -2,10 +2,10 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/horaoen/go-backend-clean-architecture/domain"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type TaskController struct {
@@ -22,13 +22,13 @@ func (tc *TaskController) Create(c *gin.Context) {
 	}
 
 	userID := c.GetString("x-user-id")
-	task.ID = primitive.NewObjectID()
 
-	task.UserID, err = primitive.ObjectIDFromHex(userID)
+	uid, err := strconv.ParseUint(userID, 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
 		return
 	}
+	task.UserID = uint(uid)
 
 	err = tc.TaskUsecase.Create(c, &task)
 	if err != nil {

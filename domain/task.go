@@ -3,7 +3,7 @@ package domain
 import (
 	"context"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"gorm.io/gorm"
 )
 
 const (
@@ -11,9 +11,11 @@ const (
 )
 
 type Task struct {
-	ID     primitive.ObjectID `bson:"_id" json:"-"`
-	Title  string             `bson:"title" form:"title" binding:"required" json:"title"`
-	UserID primitive.ObjectID `bson:"userID" json:"-"`
+	ID     uint   `gorm:"primaryKey" json:"id"`
+	Title  string `gorm:"size:255;not null" form:"title" binding:"required" json:"title"`
+	UserID uint   `gorm:"not null;index" json:"user_id"`
+	User   User   `gorm:"foreignKey:UserID" json:"-"`
+	gorm.Model
 }
 
 type TaskRepository interface {

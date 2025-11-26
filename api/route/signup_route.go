@@ -6,14 +6,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/horaoen/go-backend-clean-architecture/api/controller"
 	"github.com/horaoen/go-backend-clean-architecture/bootstrap"
-	"github.com/horaoen/go-backend-clean-architecture/domain"
-	"github.com/horaoen/go-backend-clean-architecture/mongo"
 	"github.com/horaoen/go-backend-clean-architecture/repository"
 	"github.com/horaoen/go-backend-clean-architecture/usecase"
+	"gorm.io/gorm"
 )
 
-func NewSignupRouter(env *bootstrap.Env, timeout time.Duration, db mongo.Database, group *gin.RouterGroup) {
-	ur := repository.NewUserRepository(db, domain.CollectionUser)
+func NewSignupRouter(env *bootstrap.Env, timeout time.Duration, db *gorm.DB, group *gin.RouterGroup) {
+	ur := repository.NewUserRepository(db)
 	sc := controller.SignupController{
 		SignupUsecase: usecase.NewSignupUsecase(ur, timeout),
 		Env:           env,

@@ -6,10 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/horaoen/go-backend-clean-architecture/api/middleware"
 	"github.com/horaoen/go-backend-clean-architecture/bootstrap"
-	"github.com/horaoen/go-backend-clean-architecture/mongo"
+	"gorm.io/gorm"
 )
 
-func Setup(env *bootstrap.Env, timeout time.Duration, db mongo.Database, gin *gin.Engine) {
+func Setup(env *bootstrap.Env, timeout time.Duration, db *gorm.DB, gin *gin.Engine) {
 	publicRouter := gin.Group("")
 	// All Public APIs
 	NewSignupRouter(env, timeout, db, publicRouter)

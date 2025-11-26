@@ -2,6 +2,7 @@ package tokenutil
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	jwt "github.com/golang-jwt/jwt/v4"
@@ -12,7 +13,7 @@ func CreateAccessToken(user *domain.User, secret string, expiry int) (accessToke
 	exp := time.Now().Add(time.Hour * time.Duration(expiry)).Unix()
 	claims := &domain.JwtCustomClaims{
 		Name: user.Name,
-		ID:   user.ID.Hex(),
+		ID:   strconv.FormatUint(uint64(user.ID), 10),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Unix(exp, 0)),
 		},
@@ -28,7 +29,7 @@ func CreateAccessToken(user *domain.User, secret string, expiry int) (accessToke
 func CreateRefreshToken(user *domain.User, secret string, expiry int) (refreshToken string, err error) {
 	expRefresh := time.Now().Add(time.Hour * time.Duration(expiry))
 	claimsRefresh := &domain.JwtCustomRefreshClaims{
-		ID: user.ID.Hex(),
+		ID: strconv.FormatUint(uint64(user.ID), 10),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expRefresh),
 		},

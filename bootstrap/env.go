@@ -10,12 +10,7 @@ type Env struct {
 	AppEnv         string `mapstructure:"APP_ENV"`
 	ServerAddress  string `mapstructure:"SERVER_ADDRESS"`
 	ContextTimeout int    `mapstructure:"CONTEXT_TIMEOUT"`
-	DBHost         string `mapstructure:"DB_HOST"`
 	LogLevel       int    `mapstructure:"LOG_LEVEL"`
-	DBPort         string `mapstructure:"DB_PORT"`
-	DBUser         string `mapstructure:"DB_USER"`
-	DBPass         string `mapstructure:"DB_PASS"`
-	DBName         string `mapstructure:"DB_NAME"`
 	// PostgreSQL Configuration
 	PostgresHost     string `mapstructure:"POSTGRES_HOST"`
 	PostgresPort     string `mapstructure:"POSTGRES_PORT"`

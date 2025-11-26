@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/horaoen/go-backend-clean-architecture/bootstrap"
 	"github.com/horaoen/go-backend-clean-architecture/domain"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -42,7 +41,6 @@ func (sc *SignupController) Signup(c *gin.Context) {
 	request.Password = string(encryptedPassword)
 
 	user := domain.User{
-		ID:       primitive.NewObjectID(),
 		Name:     request.Name,
 		Email:    request.Email,
 		Password: request.Password,

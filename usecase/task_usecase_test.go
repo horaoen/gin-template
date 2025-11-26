@@ -3,6 +3,7 @@ package usecase_test
 import (
 	"context"
 	"errors"
+	"strconv"
 	"testing"
 	"time"
 
@@ -11,20 +12,19 @@ import (
 	"github.com/horaoen/go-backend-clean-architecture/usecase"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func TestFetchByUserID(t *testing.T) {
 	mockTaskRepository := new(mocks.TaskRepository)
-	userObjectID := primitive.NewObjectID()
-	userID := userObjectID.Hex()
+	var userIDUint uint = 1
+	userID := strconv.FormatUint(uint64(userIDUint), 10)
 
 	t.Run("success", func(t *testing.T) {
 
 		mockTask := domain.Task{
-			ID:     primitive.NewObjectID(),
+			ID:     1,
 			Title:  "Test Title",
-			UserID: userObjectID,
+			UserID: userIDUint,
 		}
 
 		mockListTask := make([]domain.Task, 0)
