@@ -41,10 +41,10 @@ func (tc *TaskController) Create(c *gin.Context) {
 	})
 }
 
-func (u *TaskController) Fetch(c *gin.Context) {
+func (tc *TaskController) Fetch(c *gin.Context) {
 	userID := c.GetString("x-user-id")
 
-	tasks, err := u.TaskUsecase.FetchByUserID(c, userID)
+	tasks, err := tc.TaskUsecase.FetchByUserID(c, userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
 		return

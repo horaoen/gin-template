@@ -1,3 +1,4 @@
+// Package usecase
 package usecase
 
 import (

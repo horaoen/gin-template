@@ -1,3 +1,4 @@
+// Package controller provides HTTP handlers for user authentication and profile management.
 package controller
 
 import (

@@ -1,3 +1,4 @@
+// Package bootstrap
 package bootstrap
 
 import (
