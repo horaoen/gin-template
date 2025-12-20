@@ -12,37 +12,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestSignupUsecase_Create(t *testing.T) {
-	user := &domain.User{
-		Name:     "Test User",
-		Email:    "test@example.com",
-		Password: "password",
-	}
-
-	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockUserRepository)
-		mockRepo.On("Create", mock.Anything, user).Return(nil)
-
-		u := usecase.NewSignupUsecase(mockRepo, time.Second*2)
-		err := u.Create(context.Background(), user)
-
-		assert.NoError(t, err)
-		mockRepo.AssertExpectations(t)
-	})
-
-	t.Run("error", func(t *testing.T) {
-		mockRepo := new(MockUserRepository)
-		mockRepo.On("Create", mock.Anything, user).Return(errors.New("database error"))
-
-		u := usecase.NewSignupUsecase(mockRepo, time.Second*2)
-		err := u.Create(context.Background(), user)
-
-		assert.Error(t, err)
-		mockRepo.AssertExpectations(t)
-	})
-}
-
-func TestSignupUsecase_GetUserByEmail(t *testing.T) {
+func TestLoginUsecase_GetUserByEmail(t *testing.T) {
 	email := "test@example.com"
 	user := domain.User{
 		Name:     "Test User",
@@ -54,7 +24,7 @@ func TestSignupUsecase_GetUserByEmail(t *testing.T) {
 		mockRepo := new(MockUserRepository)
 		mockRepo.On("GetByEmail", mock.Anything, email).Return(user, nil)
 
-		u := usecase.NewSignupUsecase(mockRepo, time.Second*2)
+		u := usecase.NewLoginUsecase(mockRepo, time.Second*2)
 		fetchedUser, err := u.GetUserByEmail(context.Background(), email)
 
 		assert.NoError(t, err)
@@ -66,7 +36,7 @@ func TestSignupUsecase_GetUserByEmail(t *testing.T) {
 		mockRepo := new(MockUserRepository)
 		mockRepo.On("GetByEmail", mock.Anything, email).Return(domain.User{}, errors.New("not found"))
 
-		u := usecase.NewSignupUsecase(mockRepo, time.Second*2)
+		u := usecase.NewLoginUsecase(mockRepo, time.Second*2)
 		_, err := u.GetUserByEmail(context.Background(), email)
 
 		assert.Error(t, err)
