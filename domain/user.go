@@ -23,4 +23,5 @@ type UserRepository interface {
 	Fetch(c context.Context) ([]User, error)
 	GetByEmail(c context.Context, email string) (User, error)
 	GetByID(c context.Context, id string) (User, error)
+	Update(c context.Context, user *User) error
 }

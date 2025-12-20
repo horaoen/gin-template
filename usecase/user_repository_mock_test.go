@@ -30,3 +30,8 @@ func (m *MockUserRepository) GetByID(c context.Context, id string) (domain.User,
 	args := m.Called(c, id)
 	return args.Get(0).(domain.User), args.Error(1)
 }
+
+func (m *MockUserRepository) Update(c context.Context, user *domain.User) error {
+	args := m.Called(c, user)
+	return args.Error(0)
+}

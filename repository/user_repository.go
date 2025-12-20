@@ -53,3 +53,7 @@ func (ur *userRepository) GetByID(c context.Context, id string) (domain.User, er
 	err = ur.db.WithContext(c).First(&user, userID).Error
 	return user, err
 }
+
+func (ur *userRepository) Update(c context.Context, user *domain.User) error {
+	return ur.db.WithContext(c).Save(user).Error
+}
