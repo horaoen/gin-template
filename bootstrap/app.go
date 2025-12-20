@@ -19,7 +19,7 @@ func App() Application {
 	app.DB = NewPostgres(app.Env)
 
 	// 自动迁移数据库表
-	err := app.DB.AutoMigrate(&domain.User{}, &domain.Task{})
+	err := app.DB.AutoMigrate(&domain.User{})
 	if err != nil {
 		panic("数据库迁移失败: " + err.Error())
 	}

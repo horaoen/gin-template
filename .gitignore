@@ -9,3 +9,5 @@ cmd/cmd
 main
 
 .env
+
+/docs
