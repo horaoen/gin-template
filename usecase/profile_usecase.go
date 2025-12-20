@@ -2,9 +2,11 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/horaoen/go-backend-clean-architecture/domain"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type profileUsecase struct {
@@ -32,5 +34,23 @@ func (pu *profileUsecase) GetProfileByID(c context.Context, userID string) (*dom
 }
 
 func (pu *profileUsecase) ChangePassword(c context.Context, userID string, oldPassword string, newPassword string) error {
-	return nil
+	ctx, cancel := context.WithTimeout(c, pu.contextTimeout)
+	defer cancel()
+
+	user, err := pu.userRepository.GetByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(oldPassword)) != nil {
+		return errors.New("invalid old password")
+	}
+
+	encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	user.Password = string(encryptedPassword)
+	return pu.userRepository.Update(ctx, &user)
 }
