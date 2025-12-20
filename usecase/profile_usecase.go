@@ -30,3 +30,7 @@ func (pu *profileUsecase) GetProfileByID(c context.Context, userID string) (*dom
 
 	return &domain.Profile{Name: user.Name, Email: user.Email}, nil
 }
+
+func (pu *profileUsecase) ChangePassword(c context.Context, userID string, oldPassword string, newPassword string) error {
+	return nil
+}
