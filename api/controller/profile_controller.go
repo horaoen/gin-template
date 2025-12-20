@@ -11,6 +11,15 @@ type ProfileController struct {
 	ProfileUsecase domain.ProfileUsecase
 }
 
+// Fetch godoc
+// @Summary Get Profile
+// @Description Get user profile
+// @Tags Profile
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} domain.Profile
+// @Failure 500 {object} domain.ErrorResponse
+// @Router /profile [get]
 func (pc *ProfileController) Fetch(c *gin.Context) {
 	userID := c.GetString("x-user-id")
 

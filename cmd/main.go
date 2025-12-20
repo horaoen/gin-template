@@ -9,6 +9,25 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// @title           Go Backend Clean Architecture API
+// @version         1.0
+// @description     This is a sample server for Go Backend Clean Architecture.
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name    API Support
+// @contact.url     http://www.swagger.io/support
+// @contact.email   support@swagger.io
+
+// @license.name    Apache 2.0
+// @license.url     http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host            localhost:8080
+// @BasePath        /
+// @schemes         http
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
 
 	app := bootstrap.App()

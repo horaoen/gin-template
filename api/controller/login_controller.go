@@ -16,6 +16,19 @@ type LoginController struct {
 	Env          *bootstrap.Env
 }
 
+// Login godoc
+// @Summary Login
+// @Description Login user with email and password
+// @Tags Auth
+// @Accept x-www-form-urlencoded
+// @Produce json
+// @Param request formData domain.LoginRequest true "Login Credentials"
+// @Success 200 {object} domain.LoginResponse
+// @Failure 400 {object} domain.ErrorResponse
+// @Failure 401 {object} domain.ErrorResponse
+// @Failure 404 {object} domain.ErrorResponse
+// @Failure 500 {object} domain.ErrorResponse
+// @Router /login [post]
 func (lc *LoginController) Login(c *gin.Context) {
 	var request domain.LoginRequest
 

@@ -14,6 +14,18 @@ type SignupController struct {
 	Env           *bootstrap.Env
 }
 
+// Signup godoc
+// @Summary Signup
+// @Description Register a new user
+// @Tags Auth
+// @Accept x-www-form-urlencoded
+// @Produce json
+// @Param request formData domain.SignupRequest true "Signup Details"
+// @Success 200 {object} domain.SignupResponse
+// @Failure 400 {object} domain.ErrorResponse
+// @Failure 409 {object} domain.ErrorResponse
+// @Failure 500 {object} domain.ErrorResponse
+// @Router /signup [post]
 func (sc *SignupController) Signup(c *gin.Context) {
 	var request domain.SignupRequest
 

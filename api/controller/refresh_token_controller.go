@@ -13,6 +13,18 @@ type RefreshTokenController struct {
 	Env                 *bootstrap.Env
 }
 
+// RefreshToken godoc
+// @Summary Refresh Token
+// @Description Refresh access token using refresh token
+// @Tags Auth
+// @Accept x-www-form-urlencoded
+// @Produce json
+// @Param request formData domain.RefreshTokenRequest true "Refresh Token"
+// @Success 200 {object} domain.RefreshTokenResponse
+// @Failure 400 {object} domain.ErrorResponse
+// @Failure 401 {object} domain.ErrorResponse
+// @Failure 500 {object} domain.ErrorResponse
+// @Router /refresh [post]
 func (rtc *RefreshTokenController) RefreshToken(c *gin.Context) {
 	var request domain.RefreshTokenRequest
 

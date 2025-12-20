@@ -12,6 +12,18 @@ type TaskController struct {
 	TaskUsecase domain.TaskUsecase
 }
 
+// Create godoc
+// @Summary Create Task
+// @Description Create a new task
+// @Tags Task
+// @Security BearerAuth
+// @Accept x-www-form-urlencoded
+// @Produce json
+// @Param request formData domain.Task true "Task Details"
+// @Success 200 {object} domain.SuccessResponse
+// @Failure 400 {object} domain.ErrorResponse
+// @Failure 500 {object} domain.ErrorResponse
+// @Router /task [post]
 func (tc *TaskController) Create(c *gin.Context) {
 	var task domain.Task
 
@@ -41,6 +53,15 @@ func (tc *TaskController) Create(c *gin.Context) {
 	})
 }
 
+// Fetch godoc
+// @Summary Get Tasks
+// @Description Get all tasks for the user
+// @Tags Task
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {array} domain.Task
+// @Failure 500 {object} domain.ErrorResponse
+// @Router /task [get]
 func (tc *TaskController) Fetch(c *gin.Context) {
 	userID := c.GetString("x-user-id")
 
