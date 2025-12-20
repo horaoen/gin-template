@@ -3,7 +3,7 @@
 ## Phase 1: 完善现有认证流程的单元测试
 - [x] Task: 为 Signup 流程编写单元测试 (TDD: Write Tests -> Implement Fixes if needed) [30746c6]
 - [x] Task: 为 Login 流程编写单元测试 (TDD: Write Tests -> Implement Fixes if needed) [6dbb723]
-- [ ] Task: 为 Refresh Token 流程编写单元测试 (TDD: Write Tests -> Implement Fixes if needed)
+- [x] Task: 为 Refresh Token 流程编写单元测试 (TDD: Write Tests -> Implement Fixes if needed) [ffdd43b]
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: 完善单元测试' (Protocol in workflow.md)
 
 ## Phase 2: 实现修改密码功能
