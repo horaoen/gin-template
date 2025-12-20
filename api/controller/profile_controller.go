@@ -31,3 +31,7 @@ func (pc *ProfileController) Fetch(c *gin.Context) {
 
 	c.JSON(http.StatusOK, profile)
 }
+
+func (pc *ProfileController) ChangePassword(c *gin.Context) {
+	// To be implemented
+}
