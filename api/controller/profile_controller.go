@@ -33,5 +33,25 @@ func (pc *ProfileController) Fetch(c *gin.Context) {
 }
 
 func (pc *ProfileController) ChangePassword(c *gin.Context) {
-	// To be implemented
+	var request domain.ChangePasswordRequest
+
+	err := c.ShouldBind(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	userID := c.GetString("x-user-id")
+
+	err = pc.ProfileUsecase.ChangePassword(c, userID, request.OldPassword, request.NewPassword)
+	if err != nil {
+		if err.Error() == "invalid old password" {
+			c.JSON(http.StatusUnauthorized, domain.ErrorResponse{Message: err.Error()})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, domain.SuccessResponse{Message: "Password changed successfully"})
 }

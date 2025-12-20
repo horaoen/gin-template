@@ -17,4 +17,5 @@ func NewProfileRouter(env *bootstrap.Env, timeout time.Duration, db *gorm.DB, gr
 		ProfileUsecase: usecase.NewProfileUsecase(ur, timeout),
 	}
 	group.GET("/profile", pc.Fetch)
+	group.POST("/profile/change-password", pc.ChangePassword)
 }
