@@ -1,10 +1,10 @@
 # Plan: 增强认证流程并完善单元测试
 
-## Phase 1: 完善现有认证流程的单元测试
+## Phase 1: 完善现有认证流程的单元测试 [checkpoint: 29c7802]
 - [x] Task: 为 Signup 流程编写单元测试 (TDD: Write Tests -> Implement Fixes if needed) [30746c6]
 - [x] Task: 为 Login 流程编写单元测试 (TDD: Write Tests -> Implement Fixes if needed) [6dbb723]
 - [x] Task: 为 Refresh Token 流程编写单元测试 (TDD: Write Tests -> Implement Fixes if needed) [ffdd43b]
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: 完善单元测试' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: 完善单元测试' (Protocol in workflow.md) [29c7802]
 
 ## Phase 2: 实现修改密码功能
 - [ ] Task: 在 Domain 层定义 Change Password 相关的 Request 和 Usecase 接口
