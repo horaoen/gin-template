@@ -8,7 +8,7 @@
 
 ## Phase 2: 实现修改密码功能
 - [x] Task: 在 Domain 层定义 Change Password 相关的 Request 和 Usecase 接口 [092094a]
-- [ ] Task: 编写 Change Password Usecase 的单元测试
+- [x] Task: 编写 Change Password Usecase 的单元测试 [25c0c29]
 - [ ] Task: 实现 Change Password Usecase 逻辑
 - [ ] Task: 编写 Change Password Controller 的单元测试
 - [ ] Task: 实现 Change Password Controller 并注册路由
