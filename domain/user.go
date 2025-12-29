@@ -2,20 +2,16 @@ package domain
 
 import (
 	"context"
-
-	"gorm.io/gorm"
-)
-
-const (
-	CollectionUser = "users"
+	"time"
 )
 
 type User struct {
-	ID       uint   `gorm:"primaryKey" json:"id"`
-	Name     string `gorm:"size:255;not null" json:"name"`
-	Email    string `gorm:"size:255;uniqueIndex;not null" json:"email"`
-	Password string `gorm:"size:255;not null" json:"-"`
-	gorm.Model
+	ID        uint
+	Name      string
+	Email     string
+	Password  string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type UserRepository interface {

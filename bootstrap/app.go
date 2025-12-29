@@ -2,7 +2,7 @@
 package bootstrap
 
 import (
-	"github.com/horaoen/go-backend-clean-architecture/domain"
+	"github.com/horaoen/go-backend-clean-architecture/repository/model"
 	"gorm.io/gorm"
 )
 
@@ -19,7 +19,7 @@ func App() Application {
 	app.DB = NewPostgres(app.Env)
 
 	// 自动迁移数据库表
-	err := app.DB.AutoMigrate(&domain.User{})
+	err := app.DB.AutoMigrate(&model.UserModel{})
 	if err != nil {
 		panic("数据库迁移失败: " + err.Error())
 	}
