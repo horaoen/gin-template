@@ -3,7 +3,6 @@ package controller_test
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -12,58 +11,33 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/horaoen/go-backend-clean-architecture/api/controller"
-	"github.com/horaoen/go-backend-clean-architecture/bootstrap"
+	"github.com/horaoen/go-backend-clean-architecture/api/dto"
 	"github.com/horaoen/go-backend-clean-architecture/domain"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-// MockRefreshTokenUsecase
 type MockRefreshTokenUsecase struct {
 	mock.Mock
 }
 
-func (m *MockRefreshTokenUsecase) GetUserByID(c context.Context, id string) (domain.User, error) {
-	args := m.Called(c, id)
-	return args.Get(0).(domain.User), args.Error(1)
-}
-
-func (m *MockRefreshTokenUsecase) CreateAccessToken(user *domain.User, secret string, expiry int) (string, error) {
-	args := m.Called(user, secret, expiry)
-	return args.String(0), args.Error(1)
-}
-
-func (m *MockRefreshTokenUsecase) CreateRefreshToken(user *domain.User, secret string, expiry int) (string, error) {
-	args := m.Called(user, secret, expiry)
-	return args.String(0), args.Error(1)
-}
-
-func (m *MockRefreshTokenUsecase) ExtractIDFromToken(requestToken string, secret string) (string, error) {
-	args := m.Called(requestToken, secret)
-	return args.String(0), args.Error(1)
+func (m *MockRefreshTokenUsecase) Refresh(c context.Context, refreshToken string) (domain.TokenPair, error) {
+	args := m.Called(c, refreshToken)
+	return args.Get(0).(domain.TokenPair), args.Error(1)
 }
 
 func TestRefreshTokenController_RefreshToken(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	env := &bootstrap.Env{
-		AccessTokenSecret:      "access_secret",
-		AccessTokenExpiryHour:  2,
-		RefreshTokenSecret:     "refresh_secret",
-		RefreshTokenExpiryHour: 24,
-	}
-
-	user := domain.User{
-		ID:    1,
-		Name:  "Test User",
-		Email: "test@example.com",
+	expectedTokens := domain.TokenPair{
+		AccessToken:  "new_access_token",
+		RefreshToken: "new_refresh_token",
 	}
 
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockRefreshTokenUsecase)
 		rtc := controller.RefreshTokenController{
 			RefreshTokenUsecase: mockUsecase,
-			Env:                 env,
 		}
 
 		w := httptest.NewRecorder()
@@ -76,17 +50,13 @@ func TestRefreshTokenController_RefreshToken(t *testing.T) {
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 		c.Request = req
 
-		// Mock expectations
-		mockUsecase.On("ExtractIDFromToken", "valid_refresh_token", env.RefreshTokenSecret).Return("1", nil)
-		mockUsecase.On("GetUserByID", mock.Anything, "1").Return(user, nil)
-		mockUsecase.On("CreateAccessToken", mock.Anything, env.AccessTokenSecret, env.AccessTokenExpiryHour).Return("new_access_token", nil)
-		mockUsecase.On("CreateRefreshToken", mock.Anything, env.RefreshTokenSecret, env.RefreshTokenExpiryHour).Return("new_refresh_token", nil)
+		mockUsecase.On("Refresh", mock.Anything, "valid_refresh_token").Return(expectedTokens, nil)
 
 		rtc.RefreshToken(c)
 
 		assert.Equal(t, http.StatusOK, w.Code)
 
-		var response domain.RefreshTokenResponse
+		var response dto.RefreshTokenResponse
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
 		assert.Equal(t, "new_access_token", response.AccessToken)
@@ -99,7 +69,6 @@ func TestRefreshTokenController_RefreshToken(t *testing.T) {
 		mockUsecase := new(MockRefreshTokenUsecase)
 		rtc := controller.RefreshTokenController{
 			RefreshTokenUsecase: mockUsecase,
-			Env:                 env,
 		}
 
 		w := httptest.NewRecorder()
@@ -112,8 +81,7 @@ func TestRefreshTokenController_RefreshToken(t *testing.T) {
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 		c.Request = req
 
-		// Mock expectations
-		mockUsecase.On("ExtractIDFromToken", "invalid_token", env.RefreshTokenSecret).Return("", errors.New("invalid token"))
+		mockUsecase.On("Refresh", mock.Anything, "invalid_token").Return(domain.TokenPair{}, domain.ErrInvalidToken)
 
 		rtc.RefreshToken(c)
 
@@ -122,7 +90,7 @@ func TestRefreshTokenController_RefreshToken(t *testing.T) {
 		var response domain.ErrorResponse
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, "User not found", response.Message) // The controller returns "User not found" on extraction error
+		assert.Equal(t, "invalid or expired token", response.Message)
 
 		mockUsecase.AssertExpectations(t)
 	})
@@ -131,22 +99,19 @@ func TestRefreshTokenController_RefreshToken(t *testing.T) {
 		mockUsecase := new(MockRefreshTokenUsecase)
 		rtc := controller.RefreshTokenController{
 			RefreshTokenUsecase: mockUsecase,
-			Env:                 env,
 		}
 
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
 		data := url.Values{}
-		data.Set("refreshToken", "valid_refresh_token")
+		data.Set("refreshToken", "valid_token_for_missing_user")
 
 		req, _ := http.NewRequest(http.MethodPost, "/refresh", strings.NewReader(data.Encode()))
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 		c.Request = req
 
-		// Mock expectations
-		mockUsecase.On("ExtractIDFromToken", "valid_refresh_token", env.RefreshTokenSecret).Return("1", nil)
-		mockUsecase.On("GetUserByID", mock.Anything, "1").Return(domain.User{}, errors.New("not found"))
+		mockUsecase.On("Refresh", mock.Anything, "valid_token_for_missing_user").Return(domain.TokenPair{}, domain.ErrUserNotFound)
 
 		rtc.RefreshToken(c)
 
@@ -155,7 +120,7 @@ func TestRefreshTokenController_RefreshToken(t *testing.T) {
 		var response domain.ErrorResponse
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, "User not found", response.Message)
+		assert.Equal(t, "user not found", response.Message)
 
 		mockUsecase.AssertExpectations(t)
 	})

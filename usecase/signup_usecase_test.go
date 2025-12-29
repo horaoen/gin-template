@@ -12,64 +12,60 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestSignupUsecase_Create(t *testing.T) {
-	user := &domain.User{
-		Name:     "Test User",
-		Email:    "test@example.com",
-		Password: "password",
-	}
-
-	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockUserRepository)
-		mockRepo.On("Create", mock.Anything, user).Return(nil)
-
-		u := usecase.NewSignupUsecase(mockRepo, time.Second*2)
-		err := u.Create(context.Background(), user)
-
-		assert.NoError(t, err)
-		mockRepo.AssertExpectations(t)
-	})
-
-	t.Run("error", func(t *testing.T) {
-		mockRepo := new(MockUserRepository)
-		mockRepo.On("Create", mock.Anything, user).Return(errors.New("database error"))
-
-		u := usecase.NewSignupUsecase(mockRepo, time.Second*2)
-		err := u.Create(context.Background(), user)
-
-		assert.Error(t, err)
-		mockRepo.AssertExpectations(t)
-	})
-}
-
-func TestSignupUsecase_GetUserByEmail(t *testing.T) {
+func TestSignupUsecase_Signup(t *testing.T) {
+	name := "Test User"
 	email := "test@example.com"
-	user := domain.User{
-		Name:     "Test User",
-		Email:    email,
-		Password: "password",
+	password := "password"
+
+	expectedTokens := domain.TokenPair{
+		AccessToken:  "access_token",
+		RefreshToken: "refresh_token",
 	}
 
 	t.Run("success", func(t *testing.T) {
 		mockRepo := new(MockUserRepository)
-		mockRepo.On("GetByEmail", mock.Anything, email).Return(user, nil)
+		mockTokenService := new(MockTokenService)
 
-		u := usecase.NewSignupUsecase(mockRepo, time.Second*2)
-		fetchedUser, err := u.GetUserByEmail(context.Background(), email)
+		mockRepo.On("GetByEmail", mock.Anything, email).Return(domain.User{}, errors.New("not found"))
+		mockRepo.On("Create", mock.Anything, mock.AnythingOfType("*domain.User")).Return(nil)
+		mockTokenService.On("GenerateTokenPair", mock.Anything).Return(expectedTokens, nil)
+
+		u := usecase.NewSignupUsecase(mockRepo, mockTokenService, time.Second*2)
+		tokens, err := u.Signup(context.Background(), name, email, password)
 
 		assert.NoError(t, err)
-		assert.Equal(t, user, fetchedUser)
+		assert.Equal(t, expectedTokens, tokens)
+		mockRepo.AssertExpectations(t)
+		mockTokenService.AssertExpectations(t)
+	})
+
+	t.Run("user_already_exists", func(t *testing.T) {
+		mockRepo := new(MockUserRepository)
+		mockTokenService := new(MockTokenService)
+
+		existingUser := domain.User{Email: email}
+		mockRepo.On("GetByEmail", mock.Anything, email).Return(existingUser, nil)
+
+		u := usecase.NewSignupUsecase(mockRepo, mockTokenService, time.Second*2)
+		_, err := u.Signup(context.Background(), name, email, password)
+
+		assert.Error(t, err)
+		assert.ErrorIs(t, err, domain.ErrUserAlreadyExists)
 		mockRepo.AssertExpectations(t)
 	})
 
-	t.Run("not found", func(t *testing.T) {
+	t.Run("create_error", func(t *testing.T) {
 		mockRepo := new(MockUserRepository)
-		mockRepo.On("GetByEmail", mock.Anything, email).Return(domain.User{}, errors.New("not found"))
+		mockTokenService := new(MockTokenService)
 
-		u := usecase.NewSignupUsecase(mockRepo, time.Second*2)
-		_, err := u.GetUserByEmail(context.Background(), email)
+		mockRepo.On("GetByEmail", mock.Anything, email).Return(domain.User{}, errors.New("not found"))
+		mockRepo.On("Create", mock.Anything, mock.AnythingOfType("*domain.User")).Return(errors.New("database error"))
+
+		u := usecase.NewSignupUsecase(mockRepo, mockTokenService, time.Second*2)
+		_, err := u.Signup(context.Background(), name, email, password)
 
 		assert.Error(t, err)
+		assert.ErrorIs(t, err, domain.ErrInternalServer)
 		mockRepo.AssertExpectations(t)
 	})
 }

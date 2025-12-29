@@ -5,17 +5,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/horaoen/go-backend-clean-architecture/api/controller"
-	"github.com/horaoen/go-backend-clean-architecture/bootstrap"
-	"github.com/horaoen/go-backend-clean-architecture/repository"
+	"github.com/horaoen/go-backend-clean-architecture/domain"
 	"github.com/horaoen/go-backend-clean-architecture/usecase"
-	"gorm.io/gorm"
 )
 
-func NewSignupRouter(env *bootstrap.Env, timeout time.Duration, db *gorm.DB, group *gin.RouterGroup) {
-	ur := repository.NewUserRepository(db)
+func NewSignupRouter(userRepo domain.UserRepository, tokenService domain.TokenService, timeout time.Duration, group *gin.RouterGroup) {
 	sc := controller.SignupController{
-		SignupUsecase: usecase.NewSignupUsecase(ur, timeout),
-		Env:           env,
+		SignupUsecase: usecase.NewSignupUsecase(userRepo, tokenService, timeout),
 	}
 	group.POST("/signup", sc.Signup)
 }

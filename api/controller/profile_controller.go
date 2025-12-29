@@ -1,9 +1,11 @@
 package controller
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/horaoen/go-backend-clean-architecture/api/dto"
 	"github.com/horaoen/go-backend-clean-architecture/domain"
 )
 
@@ -11,15 +13,6 @@ type ProfileController struct {
 	ProfileUsecase domain.ProfileUsecase
 }
 
-// Fetch godoc
-// @Summary Get Profile
-// @Description Get user profile
-// @Tags Profile
-// @Security BearerAuth
-// @Produce json
-// @Success 200 {object} domain.Profile
-// @Failure 500 {object} domain.ErrorResponse
-// @Router /profile [get]
 func (pc *ProfileController) Fetch(c *gin.Context) {
 	userID := c.GetString("x-user-id")
 
@@ -29,24 +22,26 @@ func (pc *ProfileController) Fetch(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, profile)
+	c.JSON(http.StatusOK, dto.ProfileResponse{
+		Name:  profile.Name,
+		Email: profile.Email,
+	})
 }
 
 func (pc *ProfileController) ChangePassword(c *gin.Context) {
-	var request domain.ChangePasswordRequest
+	var request dto.ChangePasswordRequest
 
-	err := c.ShouldBind(&request)
-	if err != nil {
+	if err := c.ShouldBind(&request); err != nil {
 		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	userID := c.GetString("x-user-id")
 
-	err = pc.ProfileUsecase.ChangePassword(c, userID, request.OldPassword, request.NewPassword)
+	err := pc.ProfileUsecase.ChangePassword(c, userID, request.OldPassword, request.NewPassword)
 	if err != nil {
-		if err.Error() == "invalid old password" {
-			c.JSON(http.StatusUnauthorized, domain.ErrorResponse{Message: err.Error()})
+		if errors.Is(err, domain.ErrInvalidCredentials) || err.Error() == "invalid old password" {
+			c.JSON(http.StatusUnauthorized, domain.ErrorResponse{Message: "invalid old password"})
 			return
 		}
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})

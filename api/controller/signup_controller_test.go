@@ -3,7 +3,6 @@ package controller_test
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -12,52 +11,33 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/horaoen/go-backend-clean-architecture/api/controller"
-	"github.com/horaoen/go-backend-clean-architecture/bootstrap"
+	"github.com/horaoen/go-backend-clean-architecture/api/dto"
 	"github.com/horaoen/go-backend-clean-architecture/domain"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-// MockSignupUsecase
 type MockSignupUsecase struct {
 	mock.Mock
 }
 
-func (m *MockSignupUsecase) Create(c context.Context, user *domain.User) error {
-	args := m.Called(c, user)
-	return args.Error(0)
-}
-
-func (m *MockSignupUsecase) GetUserByEmail(c context.Context, email string) (domain.User, error) {
-	args := m.Called(c, email)
-	return args.Get(0).(domain.User), args.Error(1)
-}
-
-func (m *MockSignupUsecase) CreateAccessToken(user *domain.User, secret string, expiry int) (string, error) {
-	args := m.Called(user, secret, expiry)
-	return args.String(0), args.Error(1)
-}
-
-func (m *MockSignupUsecase) CreateRefreshToken(user *domain.User, secret string, expiry int) (string, error) {
-	args := m.Called(user, secret, expiry)
-	return args.String(0), args.Error(1)
+func (m *MockSignupUsecase) Signup(c context.Context, name, email, password string) (domain.TokenPair, error) {
+	args := m.Called(c, name, email, password)
+	return args.Get(0).(domain.TokenPair), args.Error(1)
 }
 
 func TestSignupController_Signup(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	env := &bootstrap.Env{
-		AccessTokenSecret:      "access_secret",
-		AccessTokenExpiryHour:  2,
-		RefreshTokenSecret:     "refresh_secret",
-		RefreshTokenExpiryHour: 24,
+	expectedTokens := domain.TokenPair{
+		AccessToken:  "access_token",
+		RefreshToken: "refresh_token",
 	}
 
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockSignupUsecase)
 		sc := controller.SignupController{
 			SignupUsecase: mockUsecase,
-			Env:           env,
 		}
 
 		w := httptest.NewRecorder()
@@ -72,17 +52,13 @@ func TestSignupController_Signup(t *testing.T) {
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 		c.Request = req
 
-		// Mock expectations
-		mockUsecase.On("GetUserByEmail", mock.Anything, "test@example.com").Return(domain.User{}, errors.New("not found"))
-		mockUsecase.On("Create", mock.Anything, mock.AnythingOfType("*domain.User")).Return(nil)
-		mockUsecase.On("CreateAccessToken", mock.Anything, env.AccessTokenSecret, env.AccessTokenExpiryHour).Return("access_token", nil)
-		mockUsecase.On("CreateRefreshToken", mock.Anything, env.RefreshTokenSecret, env.RefreshTokenExpiryHour).Return("refresh_token", nil)
+		mockUsecase.On("Signup", mock.Anything, "Test User", "test@example.com", "password").Return(expectedTokens, nil)
 
 		sc.Signup(c)
 
 		assert.Equal(t, http.StatusOK, w.Code)
 
-		var response domain.SignupResponse
+		var response dto.SignupResponse
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
 		assert.Equal(t, "access_token", response.AccessToken)
@@ -95,7 +71,6 @@ func TestSignupController_Signup(t *testing.T) {
 		mockUsecase := new(MockSignupUsecase)
 		sc := controller.SignupController{
 			SignupUsecase: mockUsecase,
-			Env:           env,
 		}
 
 		w := httptest.NewRecorder()
@@ -110,8 +85,7 @@ func TestSignupController_Signup(t *testing.T) {
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 		c.Request = req
 
-		// Mock expectations
-		mockUsecase.On("GetUserByEmail", mock.Anything, "existing@example.com").Return(domain.User{Email: "existing@example.com"}, nil)
+		mockUsecase.On("Signup", mock.Anything, "Test User", "existing@example.com", "password").Return(domain.TokenPair{}, domain.ErrUserAlreadyExists)
 
 		sc.Signup(c)
 
@@ -120,7 +94,7 @@ func TestSignupController_Signup(t *testing.T) {
 		var response domain.ErrorResponse
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, "User already exists with the given email", response.Message)
+		assert.Equal(t, "user already exists with the given email", response.Message)
 
 		mockUsecase.AssertExpectations(t)
 	})
@@ -129,16 +103,13 @@ func TestSignupController_Signup(t *testing.T) {
 		mockUsecase := new(MockSignupUsecase)
 		sc := controller.SignupController{
 			SignupUsecase: mockUsecase,
-			Env:           env,
 		}
 
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
-		// Missing email
 		data := url.Values{}
 		data.Set("name", "Test User")
-		// data.Set("email", "test@example.com")
 		data.Set("password", "password")
 
 		req, _ := http.NewRequest(http.MethodPost, "/signup", strings.NewReader(data.Encode()))
@@ -148,6 +119,5 @@ func TestSignupController_Signup(t *testing.T) {
 		sc.Signup(c)
 
 		assert.Equal(t, http.StatusBadRequest, w.Code)
-		// No mock expectations needed as it fails at binding
 	})
 }
